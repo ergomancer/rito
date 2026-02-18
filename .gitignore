@@ -26,3 +26,14 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+#vscode
+.vscode/
+*.code-workspace
+/generated/prisma
+
+#prisma
+*/prisma/generated/
+
+#custom
+*/.local/

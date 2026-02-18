@@ -1,0 +1,127 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+model User {
+  userId     String   @id @default(uuid())
+  firstName  String
+  lastName   String
+  email      String   @unique
+  password   String
+  birth      DateTime
+  joinedDate DateTime @default(now())
+  access     Access   @default(USER)
+  isVerified Boolean  @default(false)
+  canQuib    Boolean  @default(false)
+  profile    Profile?
+}
+
+enum Access {
+  USER
+  AUTHOR
+  MODERATOR
+}
+
+model Profile {
+  user      User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId    String     @id
+  username  String     @unique
+  headline  String?
+  bio       String?
+  avatar    String?
+  socials   Social[]
+  author    Author?
+  moderator Moderator?
+  quibs     Quib[]
+}
+
+model Social {
+  socialId String   @id @default(uuid())
+  profile  Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId   String
+  platform Platform
+  username String
+
+  @@unique(name: "account", [platform, username])
+}
+
+enum Platform {
+  INSTAGRAM
+  X
+  FACEBOOK
+  REDDIT
+  DISCORD
+  GITHUB
+  LINKEDIN
+  MASTODON
+  BLUESKY
+}
+
+model Author {
+  profile Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId  String   @id
+  hooked  Int      @default(0)
+  series  Series[]
+  blogs   Blog[]
+}
+
+model Series {
+  seriesId    String   @id @default(uuid())
+  user        Author   @relation(fields: [userId], references: [userId])
+  userId      String
+  name        String   @unique
+  description String
+  hooked      Int      @default(0)
+  blogs       Blog[]
+  createdDate DateTime @default(now())
+}
+
+model Blog {
+  blogId           String           @id @default(uuid())
+  user             Author           @relation(fields: [userId], references: [userId])
+  userId           String
+  series           Series?          @relation(fields: [seriesId], references: [seriesId])
+  seriesId         String?
+  title            String           @unique
+  description      String
+  contentFile      String           @unique
+  reads            Int              @default(0)
+  bumps            Int              @default(0)
+  spills           Int              @default(0)
+  quibs            Quib[]
+  submittedDate    DateTime         @default(now())
+  approvedDate     DateTime         @default(now())
+  approval         Moderator        @relation(fields: [approvedBy], references: [userId])
+  approvedBy       String
+  moderationStatus ModerationStatus @default(PENDING)
+  moderationNote   String?
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RETURNED
+}
+
+model Moderator {
+  user          Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId        String  @id
+  approvedBlogs Blog[]
+}
+
+model Quib {
+  quibId     String   @id @default(uuid())
+  user       Profile  @relation(fields: [userId], references: [userId])
+  userId     String
+  blog       Blog     @relation(fields: [blogId], references: [blogId])
+  blogId     String
+  text       String
+  postedDate DateTime @default(now())
+  bumps      Int      @default(0)
+}
