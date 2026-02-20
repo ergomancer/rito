@@ -9,7 +9,7 @@
     "dev": "npx tsx --env-file=.env --watch  app/app.ts",
     "build": "npx tsc",
     "start": "node build/app.js",
-    "migrate": "pnpm env-cmd -f .env pnpm dlx prisma migrate dev && pnpm dlx prisma generate",
+    "migrate": "pnpm env-cmd -f .env pnpm dlx prisma migrate dev && npx prisma generate",
     "studio": "pnpm env-cmd -f .env pnpm dlx prisma studio",
     "seed": "pnpm env-cmd -f .env pnpm dlx tsx ./app/.local/seed.ts"
   },
@@ -21,7 +21,8 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "express": "^5.2.1",
-    "pg": "^8.18.0"
+    "pg": "^8.18.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -29,6 +30,7 @@
     "@types/pg": "^8.16.0",
     "env-cmd": "^11.0.0",
     "prisma": "^7.4.0",
+    "prisma-zod-generator": "^2.1.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
