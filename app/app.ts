@@ -1,15 +1,31 @@
 import express from "express";
+import errorHandler from "./middlewares/error-handler";
+import { NotFound } from "./lib/definitions/errors";
+import signupRouter from "./routes/signup.route";
+import profileRouter from "./routes/profile.route";
+import loginRouter from "./routes/login.route";
 
-//Import routers
-//TODO: import routers
-
-//Initialize: Express
 const app = express();
+app.use(express.static("public"));
 
-//Setup the server
-const PORT = process.env.PORT;
+//redirect requests to "/" to the frontend or my github profile
+app.get("/", (req, res) =>
+  res.redirect(process.env.APP_URL || "https://github.com/ergomancer/"),
+);
 
-//Activate the server
+//connect routers
+app.use("/signup", signupRouter);
+app.use("/login", loginRouter);
+app.use("/profile", profileRouter);
+
+//set a catch-all and error handler
+app.all("/{*splat}", () => {
+  throw NotFound;
+});
+app.use(errorHandler);
+
+//activate the server
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Rito - Listening on port ${PORT}!`);
 });
